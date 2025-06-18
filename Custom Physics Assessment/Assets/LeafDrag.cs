@@ -3,31 +3,25 @@
 [RequireComponent(typeof(Collider2D), typeof(SpriteRenderer))]
 public class LeafDrag : MonoBehaviour
 {
-    private Vector3 velocity = Vector3.zero;
+    private Vector3 velocity = Vector3.zero; // Revert to direct velocity management
     private Vector3 targetPosition;
-    private Vector3 restScale;
-    private Vector3 offset; // No longer private as it's set externally now
+    private Vector3 offset;
 
     [Header("Spring Settings")]
     public float angularFrequency = 15f;
     [Range(0f, 2f)]
     public float dampingRatio = 0.8f;
 
-    [Header("Stretch Settings")]
-    public float stretchFactor = 0.05f;
-    public float maxStretch = 1.3f;
+    void Start()
+    {
+        targetPosition = transform.position;
+    }
 
     // Public method to initiate drag
     public void StartDrag(Vector3 mousePosition)
     {
-        targetPosition = transform.position; // Ensure targetPosition is current position initially
-        offset = transform.position - mousePosition;
-    }
-
-    void Start()
-    {
-        restScale = transform.localScale;
         targetPosition = transform.position;
+        offset = transform.position - mousePosition;
     }
 
     void Update()
@@ -38,16 +32,10 @@ public class LeafDrag : MonoBehaviour
 
         targetPosition = mouse + offset;
 
-        // Apply spring
+        // Apply spring to transform.position
         Vector3 pos = transform.position;
         ApplyDampedSpring(ref pos, ref velocity, targetPosition, angularFrequency, dampingRatio);
         transform.position = pos;
-
-        // Dynamic squash & stretch based on speed
-        float speed = velocity.magnitude;
-        float s = 1f + Mathf.Clamp(speed * stretchFactor, 0f, maxStretch - 1f);
-        float inv = 1f / Mathf.Sqrt(s);
-        transform.localScale = new Vector3(restScale.x * s, restScale.y * inv, 1f);
     }
 
     static void ApplyDampedSpring(ref Vector3 p, ref Vector3 v, Vector3 target, float w, float z)
