@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class LeafFall : MonoBehaviour
 {
@@ -11,6 +11,7 @@ public class LeafFall : MonoBehaviour
     public AnimationCurve fallSpeedCurve = AnimationCurve.Linear(0, 1, 1, 1);
     public float maxSpeedTreshold = 10f; // NEW: Maximum speed the leaf can fall
     public float speedDecayRate = 2f; // NEW: How quickly speed reduces when over maxFallSpeed
+    public float upwardsSpeedDragRate = 50f;
 
     private Vector3 velocity = Vector3.zero;
     private float time;
@@ -31,41 +32,56 @@ public class LeafFall : MonoBehaviour
 
     void Update()
     {
-        // If already on the ground, do nothing (LeafController will disable this script)
         if (isGrounded)
             return;
 
-        // Falling behavior - apply gravity and drift
+        // Time-based drift
         time += Time.deltaTime;
-        velocity.y -= gravity * Time.deltaTime;
-        // Horizontal drift now adds to current velocity for smoother transitions
         velocity.x += Mathf.Sin(time * driftFrequency) * horizontalDriftStrength * Time.deltaTime;
 
-        // NEW: Check for max speed and gradually reduce it if necessary
+        // Inertia-based gravity modifier
+        float g = -gravity;
+        float vy = velocity.y;
+
+        if (vy > 0f)
+        {
+            // Ascending → stronger gravity to push it back down
+            g *= upwardsSpeedDragRate;
+        }
+        else if (vy < -maxSpeedTreshold * 0.5f)
+        {
+            // Fast falling → soften gravity as it nears terminal
+            float factor = Mathf.InverseLerp(-maxSpeedTreshold, -maxSpeedTreshold * 0.5f, vy);
+            g *= Mathf.Lerp(1f, 0.5f, factor);
+        }
+
+        // Apply to vertical velocity
+        velocity.y += g * Time.deltaTime;
+
+        // Cap overall speed smoothly (terminal velocity behavior)
         float currentSpeed = velocity.magnitude;
-        Debug.Log($"Current speed: {currentSpeed}");
         if (currentSpeed > maxSpeedTreshold)
         {
-            // Lerp the velocity magnitude towards maxFallSpeed, preserving direction
             velocity = Vector3.Lerp(velocity, velocity.normalized * maxSpeedTreshold, speedDecayRate * Time.deltaTime);
         }
 
-        // Apply overall fall speed curve based on height
+        // Flutter/fall curve
         float normalizedY = Mathf.InverseLerp(5f, groundY, transform.position.y);
         float fallMult = fallSpeedCurve.Evaluate(normalizedY);
-        Vector3 next = transform.position + velocity * Time.deltaTime * fallMult;
 
-        // Check for ground collision
+        // Move and rotate
+        Vector3 next = transform.position + velocity * Time.deltaTime * fallMult;
         if (next.y <= groundY)
         {
             next.y = groundY;
-            velocity = Vector3.zero; // Stop all movement
+            velocity = Vector3.zero;
             isGrounded = true;
         }
 
         transform.position = next;
         transform.Rotate(0f, 0f, rotationSpeed * Time.deltaTime);
     }
+
 
     public bool IsGrounded()
     {
