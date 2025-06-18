@@ -8,57 +8,47 @@ public class LeafFall : MonoBehaviour
     public float driftFrequency = 1f;
     public float rotationSpeed = 100f;
     public float groundY = -4f;
-    public AnimationCurve fallSpeedCurve;
+    public AnimationCurve fallSpeedCurve = AnimationCurve.Linear(0, 1, 1, 1);
 
-    private Vector3 velocity;
+    private Vector3 velocity = Vector3.zero;
     private float time;
-    private bool isGrounded = false;
+    private bool isGrounded = false; // Made private again, exposed via IsGrounded()
 
-    private LeafDrag dragScript;
-
-    void Start()
+    void OnEnable() // Reset on enable
     {
-        dragScript = GetComponent<LeafDrag>();
-        time = Random.Range(0f, 2f * Mathf.PI); // for variation in drift
+        isGrounded = false;
+        velocity = Vector3.zero;
+        time = Random.Range(0f, Mathf.PI * 2f); // Randomize start time for varied fall
     }
 
     void Update()
     {
-        if (dragScript != null && dragScript.enabled && !Input.GetMouseButton(0))
-        {
-            dragScript.enabled = false; // stop dragging once dropped
-            velocity = Vector3.zero;
-        }
-
-        if (dragScript != null && dragScript.enabled)
-            return;
-
+        // If already on the ground, do nothing (LeafController will disable this script)
         if (isGrounded)
             return;
 
+        // Falling behavior
         time += Time.deltaTime;
-
-        // Simulate gravity with vertical acceleration
         velocity.y -= gravity * Time.deltaTime;
-
-        // Apply horizontal sinusoidal drift
         velocity.x = Mathf.Sin(time * driftFrequency) * horizontalDriftStrength;
 
-        // Modify fall speed with a curve
-        float fallMultiplier = fallSpeedCurve.Evaluate(Mathf.Clamp01((transform.position.y + 5f) / 10f));
-        Vector3 newPosition = transform.position + velocity * Time.deltaTime * fallMultiplier;
+        float normalizedY = Mathf.InverseLerp(5f, groundY, transform.position.y);
+        float fallMult = fallSpeedCurve.Evaluate(normalizedY);
+        Vector3 next = transform.position + velocity * Time.deltaTime * fallMult;
 
-        // Stop at ground level
-        if (newPosition.y <= groundY)
+        if (next.y <= groundY)
         {
-            newPosition.y = groundY;
+            next.y = groundY;
             velocity = Vector3.zero;
             isGrounded = true;
         }
 
-        transform.position = newPosition;
-
-        // Slowly rotate as it falls
+        transform.position = next;
         transform.Rotate(0f, 0f, rotationSpeed * Time.deltaTime);
+    }
+
+    public bool IsGrounded()
+    {
+        return isGrounded;
     }
 }

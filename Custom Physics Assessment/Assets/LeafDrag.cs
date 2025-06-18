@@ -6,8 +6,7 @@ public class LeafDrag : MonoBehaviour
     private Vector3 velocity = Vector3.zero;
     private Vector3 targetPosition;
     private Vector3 restScale;
-    private bool isDragging = false;
-    private Vector3 offset;
+    private Vector3 offset; // No longer private as it's set externally now
 
     [Header("Spring Settings")]
     public float angularFrequency = 15f;
@@ -18,6 +17,13 @@ public class LeafDrag : MonoBehaviour
     public float stretchFactor = 0.05f;
     public float maxStretch = 1.3f;
 
+    // Public method to initiate drag
+    public void StartDrag(Vector3 mousePosition)
+    {
+        targetPosition = transform.position; // Ensure targetPosition is current position initially
+        offset = transform.position - mousePosition;
+    }
+
     void Start()
     {
         restScale = transform.localScale;
@@ -26,25 +32,13 @@ public class LeafDrag : MonoBehaviour
 
     void Update()
     {
+        // Only update position if dragging is active (this script is enabled)
         Vector3 mouse = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         mouse.z = 0f;
 
-        if (Input.GetMouseButtonDown(0))
-        {
-            var hit = Physics2D.OverlapPoint(mouse);
-            if (hit && hit.transform == transform)
-            {
-                isDragging = true;
-                offset = transform.position - mouse;
-            }
-        }
+        targetPosition = mouse + offset;
 
-        if (isDragging)
-        {
-            targetPosition = mouse + offset;
-        }
-
-        // Apply spring regardless of dragging state
+        // Apply spring
         Vector3 pos = transform.position;
         ApplyDampedSpring(ref pos, ref velocity, targetPosition, angularFrequency, dampingRatio);
         transform.position = pos;
@@ -54,9 +48,6 @@ public class LeafDrag : MonoBehaviour
         float s = 1f + Mathf.Clamp(speed * stretchFactor, 0f, maxStretch - 1f);
         float inv = 1f / Mathf.Sqrt(s);
         transform.localScale = new Vector3(restScale.x * s, restScale.y * inv, 1f);
-
-        if (Input.GetMouseButtonUp(0) && isDragging)
-            isDragging = false;
     }
 
     static void ApplyDampedSpring(ref Vector3 p, ref Vector3 v, Vector3 target, float w, float z)
