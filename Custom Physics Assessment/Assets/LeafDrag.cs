@@ -38,6 +38,13 @@ public class LeafDrag : MonoBehaviour
         transform.position = pos;
     }
 
+    // NEW: Public method to get the current velocity
+    public Vector3 GetCurrentVelocity()
+    {
+        Debug.Log($"ERDEM velocity: {velocity}");
+        return velocity;
+    }
+
     static void ApplyDampedSpring(ref Vector3 p, ref Vector3 v, Vector3 target, float w, float z)
     {
         float dt = Time.deltaTime;

@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class LeafController : MonoBehaviour
 {
+    [SerializeField] float inertiaMultiplier = 4f;
+
     private LeafDrag leafDrag;
     private LeafFall leafFall;
 
@@ -32,11 +34,14 @@ public class LeafController : MonoBehaviour
         // If currently dragging, check for mouse release
         if (leafDrag.enabled && Input.GetMouseButtonUp(0))
         {
+            // Get the current velocity from LeafDrag before switching to falling
+            Vector3 currentDragVelocity = leafDrag.GetCurrentVelocity() * -inertiaMultiplier; // NEW: Get velocity from LeafDrag
+            leafFall.SetInitialVelocity(currentDragVelocity); // NEW: Pass velocity to LeafFall
             SetState(LeafState.Falling);
         }
 
         // If the leaf is falling and reaches the ground, stop falling
-        if (leafFall.enabled && leafFall.IsGrounded()) // We'll add IsGrounded() to LeafFall
+        if (leafFall.enabled && leafFall.IsGrounded())
         {
             SetState(LeafState.Grounded);
         }
@@ -57,8 +62,6 @@ public class LeafController : MonoBehaviour
             case LeafState.Grounded:
                 leafDrag.enabled = false;
                 leafFall.enabled = false;
-                // Optionally, you might want to reset fall-related properties here
-                // or have LeafFall handle its own "grounded" state
                 break;
         }
     }
