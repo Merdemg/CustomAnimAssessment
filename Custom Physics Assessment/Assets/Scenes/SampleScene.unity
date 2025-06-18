@@ -189,6 +189,7 @@ MonoBehaviour:
   gravity: 0.05
   horizontalDriftStrength: 2
   driftFrequency: 1
+  rotationSpeed: 50
   groundY: -4
   fallSpeedCurve:
     serializedVersion: 2
@@ -715,6 +716,7 @@ MonoBehaviour:
   gravity: 0.05
   horizontalDriftStrength: 2
   driftFrequency: 1
+  rotationSpeed: 50
   groundY: -4
   fallSpeedCurve:
     serializedVersion: 2
@@ -1305,6 +1307,7 @@ MonoBehaviour:
   gravity: 0.05
   horizontalDriftStrength: 2
   driftFrequency: 1
+  rotationSpeed: 50
   groundY: -4
   fallSpeedCurve:
     serializedVersion: 2
@@ -1439,6 +1442,7 @@ MonoBehaviour:
   gravity: 0.05
   horizontalDriftStrength: 2
   driftFrequency: 1
+  rotationSpeed: 50
   groundY: -4
   fallSpeedCurve:
     serializedVersion: 2
@@ -1844,6 +1848,7 @@ MonoBehaviour:
   gravity: 0.05
   horizontalDriftStrength: 2
   driftFrequency: 1
+  rotationSpeed: 50
   groundY: -4
   fallSpeedCurve:
     serializedVersion: 2
@@ -2165,6 +2170,7 @@ MonoBehaviour:
   gravity: 0.05
   horizontalDriftStrength: 2
   driftFrequency: 1
+  rotationSpeed: 50
   groundY: -4
   fallSpeedCurve:
     serializedVersion: 2
@@ -2486,6 +2492,7 @@ MonoBehaviour:
   gravity: 0.05
   horizontalDriftStrength: 2
   driftFrequency: 1
+  rotationSpeed: 50
   groundY: -4
   fallSpeedCurve:
     serializedVersion: 2
@@ -2807,6 +2814,7 @@ MonoBehaviour:
   gravity: 0.05
   horizontalDriftStrength: 2
   driftFrequency: 1
+  rotationSpeed: 50
   groundY: -4
   fallSpeedCurve:
     serializedVersion: 2
@@ -3128,6 +3136,7 @@ MonoBehaviour:
   gravity: 0.05
   horizontalDriftStrength: 2
   driftFrequency: 1
+  rotationSpeed: 50
   groundY: -4
   fallSpeedCurve:
     serializedVersion: 2

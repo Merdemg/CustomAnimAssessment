@@ -6,7 +6,7 @@ public class LeafFall : MonoBehaviour
     public float gravity = 1.5f;
     public float horizontalDriftStrength = 1f;
     public float driftFrequency = 1f;
-    //public float rotationSpeed = 100f;
+    public float rotationSpeed = 100f;
     public float groundY = -4f;
     public AnimationCurve fallSpeedCurve = AnimationCurve.Linear(0, 1, 1, 1);
     public float maxSpeedTreshold = 10f;
@@ -81,7 +81,7 @@ public class LeafFall : MonoBehaviour
         }
 
         transform.position = next;
-        //transform.Rotate(0f, 0f, rotationSpeed * Time.deltaTime);
+        transform.Rotate(0f, 0f, rotationSpeed * Time.deltaTime * velocity.x);
     }
 
 
