@@ -1,25 +1,33 @@
 ﻿using UnityEngine;
 
-[RequireComponent(typeof(SpriteRenderer))]
+[RequireComponent(typeof(Collider2D), typeof(SpriteRenderer))]
 public class LeafDrag : MonoBehaviour
 {
-    bool isDragging = false;
-    Vector3 offset;
-    Vector3 restScale;
-    Vector3 velocity;
-    float spring = 100f;      // Higher spring for snappier movement
-    float damping = 15f;      // Smoothing factor
-    float maxStretch = 1.3f;  // Max scale multiplier
+    private Vector3 velocity = Vector3.zero;
+    private Vector3 targetPosition;
+    private Vector3 restScale;
+    private bool isDragging = false;
+    private Vector3 offset;
+
+    [Header("Spring Settings")]
+    public float angularFrequency = 15f;
+    [Range(0f, 2f)]
+    public float dampingRatio = 0.8f;
+
+    [Header("Stretch Settings")]
+    public float stretchFactor = 0.05f;
+    public float maxStretch = 1.3f;
 
     void Start()
     {
         restScale = transform.localScale;
+        targetPosition = transform.position;
     }
 
     void Update()
     {
         Vector3 mouse = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        mouse.z = 0;
+        mouse.z = 0f;
 
         if (Input.GetMouseButtonDown(0))
         {
@@ -33,30 +41,34 @@ public class LeafDrag : MonoBehaviour
 
         if (isDragging)
         {
-            Vector3 target = mouse + offset;
-            Vector3 diff = target - transform.position;
-
-            velocity += (diff * spring - velocity * damping) * Time.deltaTime;
-            transform.position += velocity * Time.deltaTime;
-
-            // Dynamic stretch based on current speed
-            float speed = velocity.magnitude;
-            float stretchFactor = 1f + Mathf.Clamp(speed * 0.05f, 0f, maxStretch - 1f);
-            float inv = 1f / Mathf.Sqrt(stretchFactor);
-            transform.localScale = new Vector3(restScale.x * stretchFactor, restScale.y * inv, 1);
+            targetPosition = mouse + offset;
         }
+
+        // Apply spring regardless of dragging state
+        Vector3 pos = transform.position;
+        ApplyDampedSpring(ref pos, ref velocity, targetPosition, angularFrequency, dampingRatio);
+        transform.position = pos;
+
+        // Dynamic squash & stretch based on speed
+        float speed = velocity.magnitude;
+        float s = 1f + Mathf.Clamp(speed * stretchFactor, 0f, maxStretch - 1f);
+        float inv = 1f / Mathf.Sqrt(s);
+        transform.localScale = new Vector3(restScale.x * s, restScale.y * inv, 1f);
 
         if (Input.GetMouseButtonUp(0) && isDragging)
-        {
             isDragging = false;
-        }
+    }
 
-        if (!isDragging)
-        {
-            // Smoothly decelerate to rest
-            velocity = Vector3.Lerp(velocity, Vector3.zero, damping * Time.deltaTime);
-            transform.position += velocity * Time.deltaTime;
-            transform.localScale = Vector3.Lerp(transform.localScale, restScale, Time.deltaTime * 20f);
-        }
+    static void ApplyDampedSpring(ref Vector3 p, ref Vector3 v, Vector3 target, float w, float z)
+    {
+        float dt = Time.deltaTime;
+        float f = 1f + 2f * dt * z * w;
+        float w2 = w * w;
+        float dt_w2 = dt * w2;
+        float invDet = 1f / (f + dt_w2);
+        Vector3 diff = p - target;
+        Vector3 newV = (v + diff * dt_w2) * invDet;
+        p = target + (diff + newV * dt) * invDet;
+        v = newV;
     }
 }
