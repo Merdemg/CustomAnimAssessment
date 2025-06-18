@@ -44,16 +44,27 @@ public class LeafDrag : MonoBehaviour
         return velocity;
     }
 
-    static void ApplyDampedSpring(ref Vector3 p, ref Vector3 v, Vector3 target, float w, float z)
+    static void ApplyDampedSpring(ref Vector3 position, ref Vector3 velocity, Vector3 targetPosition, float angularFreq, float dampingRatio)
     {
         float dt = Time.deltaTime;
-        float f = 1f + 2f * dt * z * w;
-        float w2 = w * w;
-        float dt_w2 = dt * w2;
-        float invDet = 1f / (f + dt_w2);
-        Vector3 diff = p - target;
-        Vector3 newV = (v + diff * dt_w2) * invDet;
-        p = target + (diff + newV * dt) * invDet;
-        v = newV;
+
+        // f = damping term that counteracts velocity and maintains critical damping balance
+        float dampingFactor = 1f + 2f * dt * dampingRatio * angularFreq;
+        float angularFreqSq = angularFreq * angularFreq;
+        float dtAngularSq = dt * angularFreqSq;
+
+        // invDet normalizes the update, stabilizing for large dt
+        float invDeterminant = 1f / (dampingFactor + dtAngularSq);
+
+        // Difference from target influences spring pull
+        Vector3 displacement = position - targetPosition;
+
+        // v_new = (oldVelocity + springForce * dt) / normalization
+        Vector3 newVelocity = (velocity + displacement * dtAngularSq) * invDeterminant;
+
+        // position update includes spring and velocity contributions, normalized
+        position = targetPosition + (displacement + newVelocity * dt) * invDeterminant;
+
+        velocity = newVelocity;
     }
 }
