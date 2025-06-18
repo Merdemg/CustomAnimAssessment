@@ -1,10 +1,14 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class LeafStretch : MonoBehaviour
 {
     [Header("Stretch Settings")]
     public float stretchFactor = 0.05f;
     public float maxStretch = 1.3f;
+
+    // speed thresholds
+    public float startStretchSpeed = 5f;   // speed where stretching begins
+    public float fullStretchSpeed = 20f;   // speed at which maxStretch is reached
 
     private Vector3 restScale;
     private Vector3 lastPosition;
@@ -18,13 +22,17 @@ public class LeafStretch : MonoBehaviour
 
     void Update()
     {
-        // Calculate velocity based on position change
+        // compute velocity
         currentVelocity = (transform.position - lastPosition) / Time.deltaTime;
-        lastPosition = transform.position; // Update last position for the next frame
+        lastPosition = transform.position;
 
-        // Dynamic squash & stretch based on calculated speed
         float speed = currentVelocity.magnitude;
-        float s = 1f + Mathf.Clamp(speed * stretchFactor, 0f, maxStretch - 1f);
+
+        // remap speed to stretch factor between 1 → maxStretch
+        float t = Mathf.InverseLerp(startStretchSpeed, fullStretchSpeed, speed);
+        float s = Mathf.Lerp(1f, maxStretch, t);
+
+        // apply stretch and squash
         float inv = 1f / Mathf.Sqrt(s);
         transform.localScale = new Vector3(restScale.x * s, restScale.y * inv, 1f);
     }
