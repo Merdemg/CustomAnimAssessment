@@ -8,7 +8,7 @@ public class LeafStretch : MonoBehaviour
 
     private Vector3 restScale;
     private Vector3 lastPosition;
-    private Vector3 currentVelocity; // To store the calculated velocity
+    private Vector3 currentVelocity;
 
     void Awake()
     {

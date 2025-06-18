@@ -38,10 +38,9 @@ public class LeafDrag : MonoBehaviour
         transform.position = pos;
     }
 
-    // NEW: Public method to get the current velocity
     public Vector3 GetCurrentVelocity()
     {
-        Debug.Log($"ERDEM velocity: {velocity}");
+        Debug.Log($"velocity during release: {velocity}");
         return velocity;
     }
 
