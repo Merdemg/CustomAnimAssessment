@@ -17,11 +17,13 @@ public class LeafFall : MonoBehaviour
     private float time;
     private bool isGrounded = false;
 
-    void OnEnable() // Reset on enable
+    float startY = 5f;
+
+    void OnEnable()
     {
         isGrounded = false;
-        // velocity is now set by SetInitialVelocity, so we don't zero it out here
         time = Random.Range(0f, Mathf.PI * 2f);
+        startY = transform.position.y;
     }
 
     // Public method to set the initial velocity when falling begins
@@ -66,7 +68,7 @@ public class LeafFall : MonoBehaviour
         }
 
         // Flutter/fall curve
-        float normalizedY = Mathf.InverseLerp(5f, groundY, transform.position.y);
+        float normalizedY = Mathf.InverseLerp(startY, groundY, transform.position.y);
         float fallMult = fallSpeedCurve.Evaluate(normalizedY);
 
         // Move and rotate

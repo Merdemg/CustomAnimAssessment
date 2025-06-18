@@ -698,8 +698,9 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  maxSpeedTreshold: 2
-  speedDecayRate: 0.5
+  maxSpeedTreshold: 1.5
+  speedDecayRate: 0.75
+  upwardsSpeedDragRate: 50
 --- !u!114 &734366380
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -712,7 +713,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8303ff710af969438ffc59100c9a4a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inertiaMultiplier: 6
+  inertiaMultiplier: 4
 --- !u!114 &734366381
 MonoBehaviour:
   m_ObjectHideFlags: 0
